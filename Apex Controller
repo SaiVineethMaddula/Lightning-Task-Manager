@@ -1,0 +1,34 @@
+public class TaskManagementController {
+    @AuraEnabled
+    public static List<Notes__c> fetchNotes() {
+        List<Notes__c> noteList = new List<Notes__c>();
+        noteList = [SELECT Id, Title__c, Status__c FROM Notes__c];
+        System.debug('Notes'+noteList);
+        return noteList;
+    }
+    
+    @AuraEnabled
+    public static Boolean completeTask(String noteId) {
+        List<Notes__c> noteList = [SELECT Id, Status__c FROM Notes__c WHERE Id =: noteId];
+        if(noteList != null && !noteList.isEmpty()) {
+            for(Notes__c eachRecord : noteList) {
+                eachRecord.Status__c = 'Completed';
+            }
+        }
+        try{
+            update noteList;
+            return true;
+        }catch(exception e) {
+            return false;
+        }
+    }
+    
+    @AuraEnabled
+    public static sObject createNote(String title) {
+        Notes__c noteRecord = new Notes__c();
+        noteRecord.Title__c = title;
+        noteRecord.Status__c = 'To Do';
+        insert noteRecord;
+        return noteRecord;
+    }
+}
