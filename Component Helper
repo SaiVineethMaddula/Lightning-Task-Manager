@@ -1,0 +1,102 @@
+({
+    doInitHelper : function(component, event, helper) {
+        var action = component.get("c.fetchNotes");
+        action.setCallback(this, function(response){
+            var state = response.getState();
+            if(state === "SUCCESS") {
+                console.log("::State1::",state);
+                var result = response.getReturnValue();
+                console.log("::Response1::",JSON.stringify(result));
+                if(result) {
+                    var toDoNotes = [];
+                    var completedNotes = [];
+                    for(var key of result) {
+                        if(key.Status__c == 'To Do') {
+                            toDoNotes.push(key);
+                        }else if(key.Status__c == 'Completed') {
+                            completedNotes.push(key);
+                        }
+                    }
+                    component.set("v.toDoNotes",toDoNotes);
+                    component.set("v.completedNotes",completedNotes);
+                    component.set("v.showCard",true);
+                }
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    
+    markCompleteHelper : function(component, event, helper) {
+        component.set("v.showCard",false);
+        var selectedCheckBox = event.getSource();
+        var recordId = selectedCheckBox.get("v.name");
+        component.set("v.showSpinner",true);
+        var action = component.get("c.completeTask");
+        action.setParams({
+            "noteId" : recordId
+        });
+        action.setCallback(this,function(response){
+            var state = response.getState();
+            if(state === "SUCCESS") {
+                component.set("v.showSpinner",false);
+                var result = response.getReturnValue();
+                if(result) {
+                    var toDoNotesList = component.get("v.toDoNotes");
+                    var completedNotesList = component.get("v.completedNotes");
+                    for(var i in toDoNotesList){
+                        if(toDoNotesList[i].Id == recordId) {
+                            completedNotesList.unshift(toDoNotesList[i]);
+                            toDoNotesList.splice(i,1);
+                        }
+                    }
+                    component.set("v.toDoNotes",toDoNotesList);
+                    component.set("v.completedNotes",completedNotesList);
+                    component.set("v.showCard",true);
+                }
+            }
+        });
+        $A.enqueueAction(action);
+    },
+    
+    createNoteHelper : function(component, event, helper) {
+        var noteTitle = component.get("v.noteTitle");
+        if((noteTitle == '' || !noteTitle)) {
+            var toastEvent = $A.get("e.force:showToast");
+            toastEvent.setParams({
+                "type" : "error",
+                "mode" : "dismissible",
+                "duration" : 1000,
+                "title" : "Error",
+                "message" : "Please fill the Title..."
+            });
+            toastEvent.fire();
+        }else {
+            var action = component.get("c.createNote");
+            action.setParams({
+                "title" : noteTitle
+            });
+            action.setCallback(this,function(response){
+                var state = response.getState();
+                if(state === "SUCCESS") {
+                    console.log("::State 2::",state);
+                    var result = response.getReturnValue();
+                    console.log("::Response 2::",JSON.stringify(result));
+                    var toDoList = component.get("v.toDoNotes");
+                    toDoList.push(result);
+                    component.set("v.toDoNotes",toDoList);
+                    var toastEvent = $A.get("e.force:showToast");
+                    toastEvent.setParams({
+                        "type" : "success",
+                        "mode" : "dismissible",
+                        "duration" : 1000,
+                        "title" : "Success",
+                        "message" : "Task created successfully!!"
+                    });
+                    toastEvent.fire();
+                    component.set("v.showModal",false);
+                }
+            });
+            $A.enqueueAction(action);
+        }
+    }
+})
