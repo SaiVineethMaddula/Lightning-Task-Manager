@@ -1,0 +1,36 @@
+.THIS .box{
+    border-radius: 10px;
+    background-color: #faf59b;
+    padding: 15px;
+    width: 148px;
+    height: 148px;
+    display: inline-block;
+    margin: 2%;
+    font-size: 15px;
+    text-align: center; 
+    position: relative;
+    overflow-wrap: break-word;
+}
+
+.THIS .completed{
+    background-color: #aafac3;
+}
+
+.THIS .flex-container {
+    display: flex;
+    flex-flow: row wrap;
+    width: 800px;
+}
+
+.THIS .slds-button__icon_left{
+    margin-right: 0px;
+   
+}
+.THIS .completeCheckbox{
+    position: absolute;
+    bottom: 5px;
+    right: 0;
+}
+.THIS .slds-text-heading_small{
+    margin-left: 2%;
+}
