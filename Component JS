@@ -1,0 +1,21 @@
+({
+	doInit : function(component, event, helper) {
+		helper.doInitHelper(component, event, helper);
+	},
+    
+    createNewNote : function(component, event, helper) {
+        component.set("v.showModal",true);
+    },
+    
+    closeModal : function(component, event, helper) {
+        component.set("v.showModal",false);
+    },
+    
+    markNoteComplete : function(component, event, helper) {
+        helper.markCompleteHelper(component, event, helper);
+    },
+    
+    createNote : function(component, event, helper) {
+        helper.createNoteHelper(component, event, helper);
+    }
+})
